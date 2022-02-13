@@ -4,12 +4,14 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.DecimalFormat;
 
 public class Tester {
     String path;
     Task task;
     Stopwatch stopwatch = new Stopwatch();
+
+    String expectedResult;
+    String calculated;
 
     public Tester(Task task, String path) {
         this.task = task;
@@ -26,11 +28,16 @@ public class Tester {
                 break;
             }
 
-            stopwatch.start();
-            boolean result = runTest(inFile, outFile);
-            stopwatch.stop();
+            System.out.printf("Test #%d: ", nr);
 
-            System.out.printf("Test #%d - %b, %d ms%n", nr, result, stopwatch.getElapsedTime());
+            boolean result = runTest(inFile, outFile);
+
+            System.out.printf("%b, %d ms%n", result, stopwatch.getElapsedTime());
+
+            if (!result) {
+                System.out.println("Expected  : " + trim(expectedResult));
+                System.out.println("Calculated: " + trim(calculated));
+            }
 
             nr++;
         }
@@ -41,13 +48,15 @@ public class Tester {
         try {
             String[] data = Files.readAllLines(inFile).toArray(new String[0]);
 
-            String expectedString = Files.readString(outFile).trim();
-            String format = expectedString.replaceAll("[0-9]", "#");    // Форматирование данных для сравнения
+            System.out.printf("(%s): ", String.join("; ", data));
 
-            double expectedResult = Double.parseDouble(expectedString);
-            Double actual = task.run(data);
+            expectedResult = Files.readString(outFile).trim();
 
-            retVal = format(expectedResult, format).equals(format(actual, format));
+            stopwatch.start();
+            calculated = task.run(data);
+            stopwatch.stop();
+
+            retVal = expectedResult.equals(calculated) || calculated.contains(expectedResult);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -55,10 +64,11 @@ public class Tester {
         return retVal;
     }
 
-    private String format(double number, String format) {
-//        2.71828205323
+    String trim(String str) {
+        if (str.length() > 50) {
+            return str.substring(0, 49)+"...";
+        }
 
-        DecimalFormat df = new DecimalFormat(format);
-        return df.format(number);
+        return str;
     }
 }

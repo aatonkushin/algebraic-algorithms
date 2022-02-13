@@ -5,28 +5,14 @@ package org.tonkushin;
  */
 
 public class Power implements Task {
-    public enum MODE {ITERATIVE, POWER_N, }
+    public enum MODE {ITERATIVE, POWER_N,}
 
     private MODE mode;
 
-    public void setMode(MODE mode) {
+    public Power(MODE mode) {
         this.mode = mode;
     }
 
-    @Override
-    public Double run(String[] data) {
-        double number = Double.parseDouble(data[0]);
-        long power = Long.parseLong(data[1]);
-
-        switch (mode) {
-            case ITERATIVE:
-                return calcIterative(number, power);
-            case POWER_N:
-                return powerN(number, power);
-        }
-
-        return null;
-    }
     /**
      * Итеративный O(N) алгоритм возведения числа в степень
      *
@@ -57,8 +43,8 @@ public class Power implements Task {
         }
         double res = 1.0;
         double sq = number;
-        while(power > 1){
-            if(power % 2 == 1){
+        while (power > 1) {
+            if (power % 2 == 1) {
                 res *= sq;
             }
             sq = sq * sq;
@@ -67,5 +53,20 @@ public class Power implements Task {
 
         res *= sq;
         return res;
+    }
+
+    @Override
+    public String run(String[] data) {
+        double number = Double.parseDouble(data[0]);
+        long power = Long.parseLong(data[1]);
+
+        switch (mode) {
+            case ITERATIVE:
+                return String.valueOf(calcIterative(number, power));
+            case POWER_N:
+                return String.valueOf(powerN(number, power));
+        }
+
+        throw new RuntimeException("Алгоритм не распознан");
     }
 }

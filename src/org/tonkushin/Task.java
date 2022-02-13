@@ -1,5 +1,5 @@
 package org.tonkushin;
 
 public interface Task {
-    Double run(String[] data);
+    String run(String[] data);
 }
